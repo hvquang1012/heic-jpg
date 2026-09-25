@@ -49,7 +49,11 @@ class Canvas2D {
 
 // Watermark: logo Minh Đức (xanh / trắng / tự động theo nền), logo tự tải lên, hoặc chữ.
 // size = % chiều rộng ảnh mà watermark chiếm; lề = 3% cạnh ngắn.
-function drawWatermark(ctx, w, h, wm) {
+// Vị trí là tỉ lệ (fx, fy) trong vùng trống còn lại: 0 = sát lề trái/trên, 1 = sát lề phải/dưới.
+const ANCHORS = { tl: [0, 0], tr: [1, 0], bl: [0, 1], br: [1, 1], c: [0.5, 0.5] };
+
+// Vẽ watermark, trả về khung {x, y, w, h, pad} để phần xem trước biết chỗ kéo thả
+export function drawWatermark(ctx, w, h, wm) {
   const pad = Math.round(Math.min(w, h) * 0.03);
   const boxW = Math.max(10, (w * wm.size) / 100);
   let draw, boxH;
@@ -73,12 +77,14 @@ function drawWatermark(ctx, w, h, wm) {
       ctx.drawImage(wm.logos[kind], x, y, boxW, boxH);
     };
   }
-  const x = wm.pos === 'tl' || wm.pos === 'bl' ? pad : wm.pos === 'c' ? (w - boxW) / 2 : w - pad - boxW;
-  const y = wm.pos === 'tl' || wm.pos === 'tr' ? pad : wm.pos === 'c' ? (h - boxH) / 2 : h - pad - boxH;
+  const [fx, fy] = wm.pos === 'custom' ? [wm.fx, wm.fy] : ANCHORS[wm.pos] || ANCHORS.tl;
+  const x = Math.round(pad + fx * (w - 2 * pad - boxW));
+  const y = Math.round(pad + fy * (h - 2 * pad - boxH));
   ctx.save();
   ctx.globalAlpha = wm.opacity / 100;
-  draw(Math.round(x), Math.round(y));
+  draw(x, y);
   ctx.restore();
+  return { x, y, w: boxW, h: boxH, pad };
 }
 
 // Độ sáng trung bình vùng đặt logo (lấy mẫu thưa cho nhanh)

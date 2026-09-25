@@ -1,4 +1,4 @@
-import { decode, render, encode, isHeic } from './pipeline.js';
+import { decode, render, encode, isHeic, drawWatermark } from './pipeline.js';
 import { buildName, uniquePath, baseName, fmtDate } from './rename.js';
 
 const $ = (s, root = document) => root.querySelector(s);
@@ -83,6 +83,7 @@ async function setCustomLogo(dataUrl, save) {
   $('#c-wm-custom-preview').src = dataUrl;
   $('#c-wm-custom-preview').hidden = false;
   $('#c-wm-custom-clear').classList.remove('hidden');
+  schedulePreview();
   if (save) {
     try { localStorage.setItem(CUSTOM_LOGO_KEY, dataUrl); } catch { toast('Logo quá lớn để lưu – chỉ dùng trong lần mở này'); }
   }
@@ -113,6 +114,7 @@ function clearCustomLogo() {
   $('#c-wm-custom-preview').hidden = true;
   $('#c-wm-custom-preview').removeAttribute('src');
   $('#c-wm-custom-clear').classList.add('hidden');
+  schedulePreview();
   try { localStorage.removeItem(CUSTOM_LOGO_KEY); } catch { /* bỏ qua */ }
 }
 
@@ -134,7 +136,10 @@ function watermarkOptions() {
   const kind = $('#c-wm-kind').value;
   const text = $('#c-wm-text').value.trim();
   if (kind === 'text' ? !text : !LOGOS[kind === 'auto' ? 'navy' : kind]) return null;
-  return { kind, text, logos: LOGOS, pos: $('#c-wm-place').value, size: +$('#c-wm-scale').value, opacity: +$('#c-wm-op').value };
+  return {
+    kind, text, logos: LOGOS, pos: $('#c-wm-place').value, fx: +$('#c-wm-x').value || 0, fy: +$('#c-wm-y').value || 0,
+    size: +$('#c-wm-scale').value, opacity: +$('#c-wm-op').value,
+  };
 }
 
 function compressOptions() {
@@ -257,6 +262,7 @@ class Workspace {
   }
 
   render() {
+    if (this.mode === 'convert') schedulePreview();
     this.assignNames();
     const done = this.items.filter((i) => i.out);
     this.toolbar.classList.toggle('hidden', !this.items.length);
@@ -470,6 +476,104 @@ function setCompare(v) {
   $('.compare-line').style.left = `${v}%`;
 }
 
+// ---------- Xem trước watermark + kéo thả vị trí ----------
+const preview = { key: '', base: null, box: null, drag: null, queued: false, space: null };
+
+function placeholderBase() {
+  const c = document.createElement('canvas');
+  c.width = 1200;
+  c.height = 900;
+  const ctx = c.getContext('2d');
+  const g = ctx.createLinearGradient(0, 0, 1200, 900);
+  g.addColorStop(0, '#9fb3c8');
+  g.addColorStop(1, '#e9e4da');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 1200, 900);
+  return c;
+}
+
+// Ảnh nền xem trước: ảnh đầu tiên trong danh sách (thu nhỏ, đã xoay), lưu tạm theo ảnh + góc xoay
+async function previewBase() {
+  const it = preview.space?.items[0];
+  const rotate = +$('#c-rotate').value;
+  const key = `${it ? it.id : 'none'}:${rotate}`;
+  if (preview.key === key) return preview.base;
+  preview.key = key;
+  let base = null;
+  if (it) {
+    try {
+      const bmp = await decode(it.file);
+      base = render(bmp, { rotate, resize: { mode: 'long', value: 900 } });
+      bmp.close?.();
+    } catch { /* ảnh lỗi → dùng nền mẫu */ }
+  }
+  base ||= placeholderBase();
+  if (preview.key === key) preview.base = base;
+  return preview.key === key ? base : null;
+}
+
+async function drawPreview() {
+  preview.queued = false;
+  const cv = $('#c-wm-preview');
+  const base = await previewBase();
+  if (!base || !cv.clientWidth) return;
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = Math.round(cv.clientWidth * dpr);
+  cv.height = Math.round((cv.width * base.height) / base.width);
+  const ctx = cv.getContext('2d');
+  ctx.drawImage(base, 0, 0, cv.width, cv.height);
+  const wm = watermarkOptions();
+  preview.box = wm ? drawWatermark(ctx, cv.width, cv.height, wm) : null;
+}
+
+function schedulePreview() {
+  if (preview.queued) return;
+  preview.queued = true;
+  requestAnimationFrame(drawPreview);
+}
+
+function initPreviewDrag() {
+  const cv = $('#c-wm-preview');
+  const point = (e) => {
+    const r = cv.getBoundingClientRect();
+    return [((e.clientX - r.left) * cv.width) / r.width, ((e.clientY - r.top) * cv.height) / r.height];
+  };
+  cv.addEventListener('pointerdown', (e) => {
+    const b = preview.box;
+    if (!b) return;
+    const [px, py] = point(e);
+    const inside = px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h;
+    // Bấm trong logo: giữ điểm nắm; bấm ngoài: đưa tâm logo tới con trỏ
+    preview.drag = inside ? { dx: px - b.x, dy: py - b.y } : { dx: b.w / 2, dy: b.h / 2 };
+    cv.setPointerCapture(e.pointerId);
+    cv.classList.add('dragging');
+    move(e);
+  });
+  const move = (e) => {
+    const b = preview.box;
+    if (!preview.drag || !b) return;
+    const [px, py] = point(e);
+    const clamp = (v) => Math.min(1, Math.max(0, v));
+    const freeW = cv.width - 2 * b.pad - b.w;
+    const freeH = cv.height - 2 * b.pad - b.h;
+    $('#c-wm-x').value = freeW > 0 ? clamp((px - preview.drag.dx - b.pad) / freeW).toFixed(4) : 0;
+    $('#c-wm-y').value = freeH > 0 ? clamp((py - preview.drag.dy - b.pad) / freeH).toFixed(4) : 0;
+    $('#c-wm-place').value = 'custom';
+    schedulePreview();
+  };
+  cv.addEventListener('pointermove', move);
+  const end = () => {
+    if (!preview.drag) return;
+    preview.drag = null;
+    cv.classList.remove('dragging');
+    // Phát sự kiện change để lưu vị trí (localStorage) như các tuỳ chọn khác
+    ['#c-wm-x', '#c-wm-y', '#c-wm-place'].forEach((s) => $(s).dispatchEvent(new Event('change', { bubbles: true })));
+  };
+  cv.addEventListener('pointerup', end);
+  cv.addEventListener('pointercancel', end);
+  new ResizeObserver(schedulePreview).observe(cv);
+}
+
 // ---------- Lưu tuỳ chọn giữa các lần mở ----------
 function persist() {
   const load = (k) => { try { return localStorage.getItem('heictool:' + k); } catch { return null; } };
@@ -512,6 +616,9 @@ function init() {
   initCustomLogo();
   const spaces = {};
   for (const el of $$('.workspace')) spaces[el.dataset.mode] = new Workspace(el, el.dataset.mode);
+  preview.space = spaces.convert;
+  initPreviewDrag();
+  Promise.all([logosReady, customLogoReady]).then(schedulePreview);
 
   $$('.tab').forEach((b) => (b.onclick = () => {
     $$('.tab').forEach((x) => x.classList.toggle('active', x === b));

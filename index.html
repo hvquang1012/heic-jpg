@@ -102,8 +102,15 @@
                 <option value="bl">Góc dưới trái</option>
                 <option value="br">Góc dưới phải</option>
                 <option value="c">Giữa ảnh</option>
+                <option value="custom">Tuỳ chỉnh (kéo thả)</option>
               </select>
             </label>
+            <div class="wm-preview">
+              <canvas id="c-wm-preview" aria-label="Xem trước watermark – kéo để đổi vị trí"></canvas>
+              <p class="hint">Kéo logo trên ảnh xem trước để đặt vị trí (dùng ảnh đầu tiên trong danh sách).</p>
+            </div>
+            <input type="hidden" id="c-wm-x" value="0" data-persist>
+            <input type="hidden" id="c-wm-y" value="0" data-persist>
             <label class="row"><span>Kích thước <output id="c-wm-scale-val">25</output>% chiều rộng ảnh</span>
               <input type="range" id="c-wm-scale" min="5" max="80" value="25" data-persist>
             </label>
