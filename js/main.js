@@ -64,11 +64,76 @@ const logosReady = Promise.all(
   })
 ).catch((err) => { console.error(err); toast('Không tải được logo watermark'); });
 
+// Logo riêng do người dùng tải lên – lưu dạng data URL để dùng lại lần sau
+const CUSTOM_LOGO_KEY = 'heictool:c-wm-custom';
+const MAX_LOGO_WIDTH = 1200;
+let customLogoReady = Promise.resolve();
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Không đọc được file logo'));
+    img.src = src;
+  });
+}
+
+async function setCustomLogo(dataUrl, save) {
+  LOGOS.custom = await loadImage(dataUrl);
+  $('#c-wm-custom-preview').src = dataUrl;
+  $('#c-wm-custom-preview').hidden = false;
+  $('#c-wm-custom-clear').classList.remove('hidden');
+  if (save) {
+    try { localStorage.setItem(CUSTOM_LOGO_KEY, dataUrl); } catch { toast('Logo quá lớn để lưu – chỉ dùng trong lần mở này'); }
+  }
+}
+
+// Thu nhỏ logo quá lớn (và chuyển SVG thành PNG) trước khi lưu
+async function uploadCustomLogo(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await loadImage(url);
+    const w = img.naturalWidth || MAX_LOGO_WIDTH, h = img.naturalHeight || Math.round(MAX_LOGO_WIDTH / 3);
+    const s = Math.min(1, MAX_LOGO_WIDTH / w);
+    const c = document.createElement('canvas');
+    c.width = Math.round(w * s);
+    c.height = Math.round(h * s);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    await setCustomLogo(c.toDataURL('image/png'), true);
+    toast('Đã tải logo lên');
+  } catch (err) {
+    toast(err.message);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+function clearCustomLogo() {
+  delete LOGOS.custom;
+  $('#c-wm-custom-preview').hidden = true;
+  $('#c-wm-custom-preview').removeAttribute('src');
+  $('#c-wm-custom-clear').classList.add('hidden');
+  try { localStorage.removeItem(CUSTOM_LOGO_KEY); } catch { /* bỏ qua */ }
+}
+
+function initCustomLogo() {
+  $('#c-wm-custom-pick').onclick = () => $('#c-wm-custom-file').click();
+  $('#c-wm-custom-file').onchange = (e) => {
+    const f = e.target.files[0];
+    e.target.value = '';
+    if (f) uploadCustomLogo(f);
+  };
+  $('#c-wm-custom-clear').onclick = clearCustomLogo;
+  let saved = null;
+  try { saved = localStorage.getItem(CUSTOM_LOGO_KEY); } catch { /* bỏ qua */ }
+  if (saved) customLogoReady = setCustomLogo(saved, false).catch(clearCustomLogo);
+}
+
 function watermarkOptions() {
   if (!$('#c-wm-on').checked) return null;
   const kind = $('#c-wm-kind').value;
   const text = $('#c-wm-text').value.trim();
-  if (kind === 'text' ? !text : !LOGOS.navy) return null;
+  if (kind === 'text' ? !text : !LOGOS[kind === 'auto' ? 'navy' : kind]) return null;
   return { kind, text, logos: LOGOS, pos: $('#c-wm-place').value, size: +$('#c-wm-scale').value, opacity: +$('#c-wm-op').value };
 }
 
@@ -290,7 +355,10 @@ class Workspace {
     if (this.busy) return;
     const queue = this.items.filter((i) => i.status !== 'working');
     if (!queue.length) return toast('Chưa có ảnh nào');
-    await logosReady;
+    await Promise.all([logosReady, customLogoReady]);
+    if ($('#c-wm-on').checked && $('#c-wm-kind').value === 'custom' && !LOGOS.custom && this.mode === 'convert') {
+      return toast('Chưa tải logo lên – bấm “Tải logo lên” trong mục Watermark');
+    }
     const o = this.options();
     if (o.resize && !(o.resize.value > 0)) return toast('Giá trị kích thước không hợp lệ');
     this.busy = true;
@@ -425,6 +493,7 @@ function syncUi() {
   $('#z-quality-val').textContent = $('#z-quality').value;
   $('#c-wm-scale-val').textContent = $('#c-wm-scale').value;
   $('#c-wm-text-row').classList.toggle('hidden', $('#c-wm-kind').value !== 'text');
+  $('#c-wm-custom-row').classList.toggle('hidden', $('#c-wm-kind').value !== 'custom');
   $('#c-wm-op-val').textContent = $('#c-wm-op').value;
   const r = $('#c-resize').value;
   $('#c-resize-custom').classList.toggle('hidden', r !== 'custom' && r !== 'percent');
@@ -440,6 +509,7 @@ function syncUi() {
 
 function init() {
   persist();
+  initCustomLogo();
   const spaces = {};
   for (const el of $$('.workspace')) spaces[el.dataset.mode] = new Workspace(el, el.dataset.mode);
 

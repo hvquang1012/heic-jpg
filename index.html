@@ -81,9 +81,19 @@
                 <option value="navy">Logo Minh Đức – xanh</option>
                 <option value="white">Logo Minh Đức – trắng</option>
                 <option value="auto">Logo Minh Đức – tự động theo nền</option>
+                <option value="custom">Logo của bạn (tải lên)</option>
                 <option value="text">Chữ</option>
               </select>
             </label>
+            <div class="row hidden" id="c-wm-custom-row">
+              <div class="logo-upload">
+                <img id="c-wm-custom-preview" alt="Logo đã tải lên" hidden>
+                <button type="button" class="btn small" id="c-wm-custom-pick">Tải logo lên</button>
+                <button type="button" class="btn small ghost hidden" id="c-wm-custom-clear">Xoá</button>
+                <input type="file" id="c-wm-custom-file" accept="image/png,image/svg+xml,image/webp,image/jpeg" hidden>
+              </div>
+              <p class="hint">Nên dùng PNG hoặc SVG nền trong suốt. Logo được lưu trên máy này cho lần sau.</p>
+            </div>
             <label class="row hidden" id="c-wm-text-row">Nội dung <input type="text" id="c-wm-text" placeholder="© Tên của bạn" data-persist></label>
             <label class="row">Vị trí
               <select id="c-wm-place" data-persist>

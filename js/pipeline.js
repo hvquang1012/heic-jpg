@@ -47,7 +47,7 @@ class Canvas2D {
   }
 }
 
-// Watermark: logo Minh Đức (xanh / trắng / tự động theo nền) hoặc chữ.
+// Watermark: logo Minh Đức (xanh / trắng / tự động theo nền), logo tự tải lên, hoặc chữ.
 // size = % chiều rộng ảnh mà watermark chiếm; lề = 3% cạnh ngắn.
 function drawWatermark(ctx, w, h, wm) {
   const pad = Math.round(Math.min(w, h) * 0.03);
@@ -66,7 +66,7 @@ function drawWatermark(ctx, w, h, wm) {
       ctx.fillText(wm.text, x, y + boxH / 2);
     };
   } else {
-    const ref = wm.logos.navy;
+    const ref = wm.logos[wm.kind === 'auto' ? 'navy' : wm.kind];
     boxH = (boxW * ref.height) / ref.width;
     draw = (x, y) => {
       const kind = wm.kind === 'auto' ? (brightness(ctx, x, y, boxW, boxH) < 140 ? 'white' : 'navy') : wm.kind;
