@@ -1,4 +1,4 @@
-# HEIC Tool – chuyển HEIC & nén ảnh (dùng cá nhân, macOS)
+# MD Studio – chuyển HEIC & nén ảnh
 
 Web tool chạy **100% trên máy bạn**: ảnh không bị tải lên đâu cả, dùng được **không cần Internet**.
 

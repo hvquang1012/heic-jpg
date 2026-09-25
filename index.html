@@ -3,9 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>HEIC Tool</title>
+  <title>MD Studio</title>
+  <meta name="apple-mobile-web-app-title" content="MD Studio">
   <meta name="description" content="Chuyển HEIC sang JPG/PNG/WEBP/PDF và nén ảnh giữ độ nét – chạy 100% trên máy.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%23e5322d%22/%3E%3Ctext x=%2250%22 y=%2266%22 font-size=%2248%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Arial%22 font-weight=%22bold%22%3EH%3C/text%3E%3C/svg%3E">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -13,7 +15,7 @@
     if (location.protocol === 'file:') document.write('<div class="file-warning">⚠ Đang mở trực tiếp từ file – trình duyệt sẽ chặn WASM. Hãy dùng link web <a href="https://app.noithatminhduc.com">app.noithatminhduc.com</a> hoặc chạy <b>start.command</b> (xem README).</div>');
   </script>
   <header class="topbar">
-    <div class="logo">HEIC<span>Tool</span></div>
+    <div class="logo"><img src="assets/logo.png" alt="" width="32" height="32">MD<span>Studio</span></div>
     <nav class="tabs" role="tablist">
       <button class="tab active" data-tab="convert" role="tab">Chuyển đổi</button>
       <button class="tab" data-tab="compress" role="tab">Nén ảnh</button>
