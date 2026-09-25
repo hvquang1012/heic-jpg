@@ -41,9 +41,7 @@ function convertOptions() {
     level: $('#c-compress').value,
     resize: r === 'none' ? null : r === 'percent' ? { mode: 'percent', value: custom } : { mode: 'long', value: r === 'custom' ? custom : +r },
     rotate: +$('#c-rotate').value,
-    watermark: $('#c-wm-on').checked && $('#c-wm-text').value.trim()
-      ? { text: $('#c-wm-text').value.trim(), pos: $('#c-wm-pos').value, size: +$('#c-wm-size').value, opacity: +$('#c-wm-op').value }
-      : null,
+    watermark: watermarkOptions(),
     rename: {
       enabled: $('#c-rn-on').checked,
       pattern: $('#c-rn-pattern').value,
@@ -55,6 +53,23 @@ function convertOptions() {
     },
     pdfPage: $('#c-pdf-page').value,
   };
+}
+
+// Logo watermark Minh Đức – tải sẵn 1 lần
+const LOGOS = {};
+const logosReady = Promise.all(
+  ['navy', 'white'].map(async (k) => {
+    const res = await fetch(`assets/wm-${k}.png`);
+    LOGOS[k] = await createImageBitmap(await res.blob());
+  })
+).catch((err) => { console.error(err); toast('Không tải được logo watermark'); });
+
+function watermarkOptions() {
+  if (!$('#c-wm-on').checked) return null;
+  const kind = $('#c-wm-kind').value;
+  const text = $('#c-wm-text').value.trim();
+  if (kind === 'text' ? !text : !LOGOS.navy) return null;
+  return { kind, text, logos: LOGOS, pos: $('#c-wm-place').value, size: +$('#c-wm-scale').value, opacity: +$('#c-wm-op').value };
 }
 
 function compressOptions() {
@@ -275,6 +290,7 @@ class Workspace {
     if (this.busy) return;
     const queue = this.items.filter((i) => i.status !== 'working');
     if (!queue.length) return toast('Chưa có ảnh nào');
+    await logosReady;
     const o = this.options();
     if (o.resize && !(o.resize.value > 0)) return toast('Giá trị kích thước không hợp lệ');
     this.busy = true;
@@ -407,7 +423,8 @@ function persist() {
 function syncUi() {
   $('#c-quality-val').textContent = $('#c-quality').value;
   $('#z-quality-val').textContent = $('#z-quality').value;
-  $('#c-wm-size-val').textContent = $('#c-wm-size').value;
+  $('#c-wm-scale-val').textContent = $('#c-wm-scale').value;
+  $('#c-wm-text-row').classList.toggle('hidden', $('#c-wm-kind').value !== 'text');
   $('#c-wm-op-val').textContent = $('#c-wm-op').value;
   const r = $('#c-resize').value;
   $('#c-resize-custom').classList.toggle('hidden', r !== 'custom' && r !== 'percent');

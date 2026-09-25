@@ -76,21 +76,29 @@
         <fieldset>
           <legend><label><input type="checkbox" id="c-wm-on" data-persist> Watermark</label></legend>
           <div id="c-wm" class="sub disabled">
-            <label class="row">Nội dung <input type="text" id="c-wm-text" placeholder="© Tên của bạn" data-persist></label>
+            <label class="row">Kiểu
+              <select id="c-wm-kind" data-persist>
+                <option value="navy">Logo Minh Đức – xanh</option>
+                <option value="white">Logo Minh Đức – trắng</option>
+                <option value="auto">Logo Minh Đức – tự động theo nền</option>
+                <option value="text">Chữ</option>
+              </select>
+            </label>
+            <label class="row hidden" id="c-wm-text-row">Nội dung <input type="text" id="c-wm-text" placeholder="© Tên của bạn" data-persist></label>
             <label class="row">Vị trí
-              <select id="c-wm-pos" data-persist>
-                <option value="br">Góc dưới phải</option>
-                <option value="bl">Góc dưới trái</option>
-                <option value="tr">Góc trên phải</option>
+              <select id="c-wm-place" data-persist>
                 <option value="tl">Góc trên trái</option>
+                <option value="tr">Góc trên phải</option>
+                <option value="bl">Góc dưới trái</option>
+                <option value="br">Góc dưới phải</option>
                 <option value="c">Giữa ảnh</option>
               </select>
             </label>
-            <label class="row"><span>Cỡ chữ <output id="c-wm-size-val">4</output>%</span>
-              <input type="range" id="c-wm-size" min="1" max="15" value="4" data-persist>
+            <label class="row"><span>Kích thước <output id="c-wm-scale-val">25</output>% chiều rộng ảnh</span>
+              <input type="range" id="c-wm-scale" min="5" max="80" value="25" data-persist>
             </label>
-            <label class="row"><span>Độ đậm <output id="c-wm-op-val">50</output>%</span>
-              <input type="range" id="c-wm-op" min="10" max="100" value="50" data-persist>
+            <label class="row"><span>Độ đậm <output id="c-wm-op-val">80</output>%</span>
+              <input type="range" id="c-wm-op" min="10" max="100" value="80" data-persist>
             </label>
           </div>
         </fieldset>

@@ -47,22 +47,49 @@ class Canvas2D {
   }
 }
 
+// Watermark: logo Minh Đức (xanh / trắng / tự động theo nền) hoặc chữ.
+// size = % chiều rộng ảnh mà watermark chiếm; lề = 3% cạnh ngắn.
 function drawWatermark(ctx, w, h, wm) {
-  const size = Math.max(10, Math.round((w * wm.size) / 100));
-  const pad = Math.round(size * 0.8);
+  const pad = Math.round(Math.min(w, h) * 0.03);
+  const boxW = Math.max(10, (w * wm.size) / 100);
+  let draw, boxH;
+  if (wm.kind === 'text') {
+    ctx.font = `600 100px -apple-system, "Helvetica Neue", Arial, sans-serif`;
+    const fontSize = (100 * boxW) / ctx.measureText(wm.text).width;
+    boxH = fontSize * 1.2;
+    draw = (x, y) => {
+      ctx.font = `600 ${fontSize}px -apple-system, "Helvetica Neue", Arial, sans-serif`;
+      ctx.fillStyle = '#fff';
+      ctx.shadowColor = 'rgba(0,0,0,.55)';
+      ctx.shadowBlur = fontSize / 6;
+      ctx.textBaseline = 'middle';
+      ctx.fillText(wm.text, x, y + boxH / 2);
+    };
+  } else {
+    const ref = wm.logos.navy;
+    boxH = (boxW * ref.height) / ref.width;
+    draw = (x, y) => {
+      const kind = wm.kind === 'auto' ? (brightness(ctx, x, y, boxW, boxH) < 140 ? 'white' : 'navy') : wm.kind;
+      ctx.drawImage(wm.logos[kind], x, y, boxW, boxH);
+    };
+  }
+  const x = wm.pos === 'tl' || wm.pos === 'bl' ? pad : wm.pos === 'c' ? (w - boxW) / 2 : w - pad - boxW;
+  const y = wm.pos === 'tl' || wm.pos === 'tr' ? pad : wm.pos === 'c' ? (h - boxH) / 2 : h - pad - boxH;
   ctx.save();
   ctx.globalAlpha = wm.opacity / 100;
-  ctx.font = `600 ${size}px -apple-system, "Helvetica Neue", Arial, sans-serif`;
-  ctx.fillStyle = '#fff';
-  ctx.shadowColor = 'rgba(0,0,0,.55)';
-  ctx.shadowBlur = size / 6;
-  const [v, hz] = { tl: ['top', 'left'], tr: ['top', 'right'], c: ['middle', 'center'], bl: ['bottom', 'left'], br: ['bottom', 'right'] }[wm.pos];
-  ctx.textBaseline = v;
-  ctx.textAlign = hz;
-  const x = hz === 'left' ? pad : hz === 'right' ? w - pad : w / 2;
-  const y = v === 'top' ? pad : v === 'bottom' ? h - pad : h / 2;
-  ctx.fillText(wm.text, x, y);
+  draw(Math.round(x), Math.round(y));
   ctx.restore();
+}
+
+// Độ sáng trung bình vùng đặt logo (lấy mẫu thưa cho nhanh)
+function brightness(ctx, x, y, bw, bh) {
+  const { data } = ctx.getImageData(Math.max(0, x), Math.max(0, y), Math.max(1, Math.round(bw)), Math.max(1, Math.round(bh)));
+  let sum = 0, n = 0;
+  for (let i = 0; i < data.length; i += 4 * 16) {
+    sum += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+    n++;
+  }
+  return n ? sum / n : 255;
 }
 
 // Trả về canvas đã áp dụng xoay / resize / watermark
@@ -77,7 +104,7 @@ export function render(bitmap, opts = {}) {
   ctx.rotate((rot * Math.PI) / 180);
   ctx.drawImage(src, -tw / 2, -th / 2, tw, th);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  if (opts.watermark?.text) drawWatermark(ctx, out.width, out.height, opts.watermark);
+  if (opts.watermark) drawWatermark(ctx, out.width, out.height, opts.watermark);
   return out.canvas;
 }
 
