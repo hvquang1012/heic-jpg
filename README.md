@@ -6,12 +6,21 @@ Web tool chạy **100% trên máy bạn**: ảnh không bị tải lên đâu c�
 
 ### Cách 1 – Link web (khuyên dùng)
 
-👉 **https://hvquang1012.github.io/heic-jpg/**
+👉 **https://app.noithatminhduc.com**
 
 Ảnh vẫn được xử lý ngay trên máy bạn, không tải lên server nào. Trong Safari có thể chọn *File → Add to Dock* để mở như một app.
 
 Bật link (chỉ làm 1 lần): repo trên GitHub → **Settings → Pages** → *Source*: **Deploy from a branch** → chọn nhánh chứa code, thư mục **/ (root)** → **Save**. Đợi 1–2 phút là link chạy.
 Lưu ý: repo **private** cần gói GitHub Pro mới bật được Pages; nếu không, để repo public (code tool không chứa thông tin cá nhân).
+
+#### Tên miền riêng
+File `CNAME` trong repo khai báo tên miền `app.noithatminhduc.com`. Cần thêm ở nơi quản lý DNS của `noithatminhduc.com`:
+
+| Loại | Tên/Host | Giá trị |
+|---|---|---|
+| CNAME | `app` | `hvquang1012.github.io` |
+
+Sau đó vào **Settings → Pages**: đợi *DNS check successful* rồi tick **Enforce HTTPS**. Nếu dùng Cloudflare, để bản ghi ở chế độ **DNS only** (mây xám). Link cũ `hvquang1012.github.io/heic-jpg` tự chuyển sang tên miền mới.
 
 ### Cách 2 – Chạy offline bằng `start.command`
 
