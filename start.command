@@ -1,6 +1,8 @@
 #!/bin/bash
 # Double-click để mở HEIC Tool trên macOS (chạy web server cục bộ, không cần Internet)
 cd "$(dirname "$0")"
+# Gỡ cờ "tải từ Internet" để macOS không chặn các file của tool về sau
+xattr -dr com.apple.quarantine . 2>/dev/null
 PORT=8765
 URL="http://localhost:$PORT"
 

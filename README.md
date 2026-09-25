@@ -4,14 +4,26 @@ Web tool chạy **100% trên máy bạn**: ảnh không bị tải lên đâu c�
 
 ## Cách mở
 
+### Cách 1 – Link web (khuyên dùng)
+
+👉 **https://hvquang1012.github.io/heic-jpg/**
+
+Ảnh vẫn được xử lý ngay trên máy bạn, không tải lên server nào. Trong Safari có thể chọn *File → Add to Dock* để mở như một app.
+
+Bật link (chỉ làm 1 lần): repo trên GitHub → **Settings → Pages** → *Source*: **Deploy from a branch** → chọn nhánh chứa code, thư mục **/ (root)** → **Save**. Đợi 1–2 phút là link chạy.
+Lưu ý: repo **private** cần gói GitHub Pro mới bật được Pages; nếu không, để repo public (code tool không chứa thông tin cá nhân).
+
+### Cách 2 – Chạy offline bằng `start.command`
+
 1. Tải repo về (`git clone` hoặc *Code → Download ZIP* rồi giải nén).
-2. Double-click **`start.command`** → trình duyệt tự mở `http://localhost:8765`.
-   - Lần đầu macOS có thể chặn file lạ: **chuột phải → Open → Open**.
-   - Nếu báo thiếu quyền chạy: mở Terminal trong thư mục và gõ `chmod +x start.command`.
-3. Dùng xong thì đóng cửa sổ Terminal để tắt.
+2. **Lần đầu**, macOS sẽ chặn file vì không có chữ ký Apple (*"start.command" Not Opened*). Chọn 1 trong các cách:
+   - Mở **Terminal**, gõ `bash ` (có dấu cách), kéo file `start.command` vào cửa sổ Terminal rồi nhấn Enter; **hoặc**
+   - Gỡ chặn cho cả thư mục: `xattr -dr com.apple.quarantine ~/Downloads/heic-jpg` (sửa đường dẫn cho đúng) rồi double-click lại; **hoặc**
+   - Double-click → **Done** → *System Settings → Privacy & Security* → kéo xuống, bấm **Open Anyway**.
+3. Từ lần sau chỉ cần double-click **`start.command`** → trình duyệt tự mở `http://localhost:8765`.
+4. Dùng xong thì đóng cửa sổ Terminal để tắt.
 
 > Không mở `index.html` trực tiếp (double-click): trình duyệt chặn WebAssembly khi chạy qua `file://`.
-> Cách khác: `python3 -m http.server 8765` trong thư mục này, hoặc bật GitHub Pages cho repo.
 
 Dùng tốt nhất trên **Safari** (đọc HEIC trực tiếp, rất nhanh); Chrome/Firefox dùng libheif (WASM) với màu chính xác.
 
