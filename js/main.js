@@ -603,6 +603,18 @@ function persist() {
   }
 }
 
+// ---------- Nút chuyển sáng / tối ----------
+function initThemeToggle() {
+  const root = document.documentElement;
+  const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  $('#theme-toggle').onclick = () => {
+    const next = isDark() ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try { localStorage.setItem('heictool:theme', next); } catch { /* bỏ qua */ }
+    schedulePreview();
+  };
+}
+
 // ---------- Khởi tạo ----------
 function syncUi() {
   $('#c-quality-val').textContent = $('#c-quality').value;
@@ -625,6 +637,7 @@ function syncUi() {
 
 function init() {
   persist();
+  initThemeToggle();
   initCustomLogo();
   const spaces = {};
   for (const el of $$('.workspace')) spaces[el.dataset.mode] = new Workspace(el, el.dataset.mode);

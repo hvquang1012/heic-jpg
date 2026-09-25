@@ -24,8 +24,9 @@
   --font: 'Plus Jakarta Sans Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color-scheme: light;
 }
+/* Tối: theo hệ thống (trừ khi chọn Sáng) hoặc khi bấm nút chọn Tối */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #0f0e24;
     --card: #1b1a3a;
     --card-2: #232248;
@@ -46,6 +47,27 @@
     --shadow-sm: 0 4px 14px rgba(0, 0, 0, .25);
     color-scheme: dark;
   }
+}
+:root[data-theme="dark"] {
+  --bg: #0f0e24;
+  --card: #1b1a3a;
+  --card-2: #232248;
+  --text: #ecebff;
+  --muted: #a3a1cf;
+  --border: #2e2c5a;
+  --primary: #8b7fff;
+  --primary-2: #6d5dfc;
+  --primary-hover: #9d93ff;
+  --primary-soft: #2b2760;
+  --on-primary: #ffffff;
+  --good: #4ade80;
+  --good-soft: #143824;
+  --bad: #fb7185;
+  --bad-soft: #3d1624;
+  --grad: linear-gradient(135deg, #5b4cf0 0%, #4338ca 55%, #312e81 100%);
+  --shadow: 0 12px 32px rgba(0, 0, 0, .35);
+  --shadow-sm: 0 4px 14px rgba(0, 0, 0, .25);
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -77,6 +99,16 @@ button, input, select, textarea { font-family: inherit; }
 .tab { border: 0; background: none; color: rgba(255, 255, 255, .85); padding: 9px 22px; border-radius: 999px; font-weight: 700; font-size: 14.5px; cursor: pointer; transition: background .2s, color .2s; }
 .tab:hover { color: #fff; }
 .tab.active { background: #fff; color: var(--primary-2); box-shadow: 0 6px 16px rgba(20, 10, 90, .25); }
+.theme-toggle { margin-left: 8px; width: 40px; height: 40px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .14); color: #fff; cursor: pointer; display: grid; place-items: center; transition: background .2s, transform .2s; flex: none; }
+.theme-toggle:hover { background: rgba(255, 255, 255, .26); transform: rotate(-15deg); }
+.theme-toggle svg { width: 20px; height: 20px; }
+.theme-toggle .sun { display: none; }
+:root[data-theme="dark"] .theme-toggle .sun { display: block; }
+:root[data-theme="dark"] .theme-toggle .moon { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .sun { display: block; }
+  :root:not([data-theme="light"]) .theme-toggle .moon { display: none; }
+}
 .privacy { margin-left: auto; font-size: 13px; font-weight: 600; background: rgba(255, 255, 255, .14); padding: 7px 14px; border-radius: 999px; }
 
 .hero-body { position: relative; z-index: 1; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; max-width: 1280px; margin: 0 auto; padding: 18px 24px 4px; }
@@ -219,8 +251,8 @@ dialog::backdrop { background: rgba(22, 22, 63, .6); backdrop-filter: blur(4px);
 .tag.left { left: 12px; }
 .tag.right { right: 12px; }
 
-.toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 160%); background: var(--grad); color: #fff; padding: 13px 22px; border-radius: 999px; font-size: 14px; font-weight: 700; transition: transform .3s cubic-bezier(.2, .9, .3, 1.2); z-index: 20; max-width: calc(100vw - 32px); box-shadow: 0 12px 30px rgba(67, 56, 202, .45); }
-.toast.show { transform: translate(-50%, 0); }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, calc(100% + 40px)); opacity: 0; visibility: hidden; background: var(--grad); color: #fff; padding: 13px 22px; border-radius: 999px; font-size: 14px; font-weight: 700; transition: transform .3s cubic-bezier(.2, .9, .3, 1.2), opacity .2s, visibility .3s; z-index: 20; max-width: calc(100vw - 32px); box-shadow: 0 12px 30px rgba(67, 56, 202, .45); }
+.toast.show { transform: translate(-50%, 0); opacity: 1; visibility: visible; }
 
 .file-warning { background: #fff4d6; color: #7a4b00; padding: 12px 16px; text-align: center; font-size: 14px; font-weight: 600; }
 
@@ -235,6 +267,7 @@ dialog::backdrop { background: rgba(22, 22, 63, .6); backdrop-filter: blur(4px);
   .hero { border-radius: 0 0 28px 28px; padding-bottom: 20px; }
   .topbar { flex-wrap: wrap; gap: 12px; padding: 14px 16px 6px; }
   .privacy { display: none; }
+  .theme-toggle { margin-left: auto; }
   .tabs { order: 3; width: 100%; }
   .tab { flex: 1; }
   .hero-body { padding: 10px 16px 0; }

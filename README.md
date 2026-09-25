@@ -46,6 +46,7 @@ Dùng tốt nhất trên **Safari** (đọc HEIC trực tiếp, rất nhanh); Ch
 | Chất lượng | 40–100, hoặc **nén thêm** Thông minh / Nhẹ / Mạnh |
 | Kích thước | Giữ nguyên, cạnh dài 2048/1600/1080 px, tuỳ chỉnh px hoặc % (thu nhỏ nhiều bước để giữ nét) |
 | Xoay | 90° phải, 180°, 90° trái |
+| Giao diện | Nút ☾/☀ ở góc trên chuyển sáng/tối (mặc định theo macOS), được ghi nhớ |
 | Watermark | Logo Minh Đức (xanh / trắng / tự động theo nền), **logo riêng tải lên** (PNG/SVG/JPG/WEBP, được lưu trên máy cho lần sau) hoặc chữ; 5 vị trí có sẵn hoặc **kéo thả trên ảnh xem trước**, kích thước theo % chiều rộng ảnh, độ đậm |
 | Đổi tên hàng loạt | Mẫu `{ten}` `{stt}` `{ngay}` `{ngaychup}` `{rong}x{cao}`, số bắt đầu, số chữ số (001), bỏ dấu tiếng Việt, chữ thường, khoảng trắng → `-`; **xem trước tên mới**; tự thêm `-1`, `-2` nếu trùng |
 | Bảo mật | EXIF & vị trí GPS luôn được xoá |
