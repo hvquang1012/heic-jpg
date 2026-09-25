@@ -8,19 +8,34 @@
   <meta name="description" content="Chuyển HEIC sang JPG/PNG/WEBP/PDF và nén ảnh giữ độ nét – chạy 100% trên máy.">
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta name="theme-color" content="#4f46e5">
+  <link rel="stylesheet" href="vendor/fonts/fonts.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <script>
     if (location.protocol === 'file:') document.write('<div class="file-warning">⚠ Đang mở trực tiếp từ file – trình duyệt sẽ chặn WASM. Hãy dùng link web <a href="https://app.noithatminhduc.com">app.noithatminhduc.com</a> hoặc chạy <b>start.command</b> (xem README).</div>');
   </script>
-  <header class="topbar">
-    <div class="logo"><img src="assets/logo.png" alt="" width="32" height="32">MD<span>Studio</span></div>
-    <nav class="tabs" role="tablist">
-      <button class="tab active" data-tab="convert" role="tab">Chuyển đổi</button>
-      <button class="tab" data-tab="compress" role="tab">Nén ảnh</button>
-    </nav>
-    <div class="privacy">🔒 Xử lý 100% trên máy</div>
+  <header class="hero">
+    <div class="topbar">
+      <div class="logo"><img src="assets/logo.png" alt="" width="36" height="36">MD<span>Studio</span></div>
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="convert" role="tab">Chuyển đổi</button>
+        <button class="tab" data-tab="compress" role="tab">Nén ảnh</button>
+      </nav>
+      <div class="privacy">🔒 Xử lý 100% trên máy</div>
+    </div>
+    <div class="hero-body">
+      <div class="hero-text">
+        <h1>Chuyển &amp; nén ảnh<br>trong tích tắc</h1>
+        <p>HEIC → JPG · PNG · WEBP · PDF, nén giữ độ nét, đóng logo Minh Đức hàng loạt.</p>
+      </div>
+      <div class="stats" aria-label="Thống kê phiên làm việc">
+        <div class="stat"><b id="stat-count">0</b><span>Ảnh đã xử lý</span></div>
+        <div class="stat"><b id="stat-saved">0 KB</b><span>Dung lượng tiết kiệm</span></div>
+        <div class="stat"><b id="stat-time">0s</b><span>Thời gian xử lý</span></div>
+      </div>
+    </div>
   </header>
 
   <main>
@@ -194,12 +209,12 @@
     <div class="dropzone" tabindex="0">
       <input type="file" class="file-input" multiple hidden>
       <input type="file" class="dir-input" webkitdirectory hidden>
-      <div class="dz-icon">⬆</div>
+      <div class="dz-icon"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="m6 10 6-6 6 6"/><path d="M4 20h16"/></svg></div>
       <div class="dz-buttons">
         <button type="button" class="btn primary big pick-files">Chọn ảnh</button>
         <button type="button" class="btn big pick-dir">Chọn thư mục</button>
       </div>
-      <p class="dz-text">hoặc kéo thả ảnh / thư mục vào đây</p>
+      <p class="dz-title">Kéo thả ảnh hoặc thư mục vào đây</p>
       <p class="hint dz-accept"></p>
     </div>
     <div class="toolbar hidden">

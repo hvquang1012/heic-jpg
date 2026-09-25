@@ -31,6 +31,17 @@ function stamp() {
   return `${fmtDate(d)}_${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
+// ---------- Thống kê phiên làm việc (hiển thị ở đầu trang) ----------
+const stats = { count: 0, saved: 0, ms: 0 };
+function updateStats(doneItems, ms) {
+  stats.count += doneItems.length;
+  stats.saved += doneItems.reduce((s, i) => s + Math.max(0, i.file.size - i.out.size), 0);
+  stats.ms += ms;
+  $('#stat-count').textContent = stats.count;
+  $('#stat-saved').textContent = stats.saved ? fmtSize(stats.saved) : '0 KB';
+  $('#stat-time').textContent = stats.ms < 60000 ? `${(stats.ms / 1000).toFixed(1)}s` : `${Math.floor(stats.ms / 60000)}m${Math.round((stats.ms % 60000) / 1000)}s`;
+}
+
 // ---------- Đọc tuỳ chọn từ form ----------
 function convertOptions() {
   const r = $('#c-resize').value;
@@ -376,6 +387,7 @@ class Workspace {
     this.busy = false;
     this.render();
     const errors = queue.filter((i) => i.status === 'error').length;
+    updateStats(queue.filter((i) => i.status === 'done'), performance.now() - t0);
     toast(`Xong ${queue.length - errors}/${queue.length} ảnh trong ${((performance.now() - t0) / 1000).toFixed(1)}s${errors ? ` – ${errors} lỗi` : ''}`);
   }
 

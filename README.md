@@ -82,7 +82,7 @@ vendor/             thư viện đóng gói sẵn (chạy offline)
 start.command       mở tool trên macOS
 ```
 
-Thư viện (trong `vendor/`): libheif-js 1.23.2 (LGPL-3.0, giải mã HEIC – bản gốc, không sửa), JSZip 3.10.1 (MIT), jsPDF 2.5.2 (MIT), exifr 7.1.3 (MIT), image-q 4.0.0 (MIT), @jsquash/jpeg 1.6.0, @jsquash/webp 1.5.0, @jsquash/oxipng 2.3.0, wasm-feature-detect 1.9.0 (Apache-2.0).
+Thư viện (trong `vendor/`): font Plus Jakarta Sans (OFL-1.1), libheif-js 1.23.2 (LGPL-3.0, giải mã HEIC – bản gốc, không sửa), JSZip 3.10.1 (MIT), jsPDF 2.5.2 (MIT), exifr 7.1.3 (MIT), image-q 4.0.0 (MIT), @jsquash/jpeg 1.6.0, @jsquash/webp 1.5.0, @jsquash/oxipng 2.3.0, wasm-feature-detect 1.9.0 (Apache-2.0).
 `vendor/jsquash/*/encode.js|optimise.js` được sửa 1 dòng import `wasm-feature-detect` sang đường dẫn tương đối để chạy trong Worker không cần bundler.
 
 ## Hướng phát triển bản Premium (bán)
