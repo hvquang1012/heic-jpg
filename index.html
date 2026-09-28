@@ -59,8 +59,8 @@
             <label><input type="radio" name="c-format" value="image/png"><span>PNG</span></label>
             <label><input type="radio" name="c-format" value="image/webp"><span>WEBP</span></label>
           </div>
-          <label class="row"><span>Chất lượng <output id="c-quality-val">85</output></span>
-            <input type="range" id="c-quality" min="40" max="100" value="85" data-persist>
+          <label class="row"><span>Chất lượng <output id="c-quality-val">98</output></span>
+            <input type="range" id="c-quality" min="40" max="100" value="98" data-persist>
           </label>
           <label class="row">Nén thêm
             <select id="c-compress" data-persist>
@@ -104,7 +104,7 @@
             <label class="row">Kiểu
               <select id="c-wm-kind" data-persist>
                 <option value="navy">Logo Minh Đức – xanh</option>
-                <option value="white">Logo Minh Đức – trắng</option>
+                <option value="white" selected>Logo Minh Đức – trắng</option>
                 <option value="auto">Logo Minh Đức – tự động theo nền</option>
                 <option value="custom">Logo của bạn (tải lên)</option>
                 <option value="text">Chữ</option>
@@ -126,7 +126,7 @@
                 <option value="tr">Góc trên phải</option>
                 <option value="bl">Góc dưới trái</option>
                 <option value="br">Góc dưới phải</option>
-                <option value="c">Giữa ảnh</option>
+                <option value="c" selected>Giữa ảnh</option>
                 <option value="custom">Tuỳ chỉnh (kéo thả)</option>
               </select>
             </label>
@@ -136,11 +136,11 @@
             </div>
             <input type="hidden" id="c-wm-x" value="0" data-persist>
             <input type="hidden" id="c-wm-y" value="0" data-persist>
-            <label class="row"><span>Kích thước <output id="c-wm-scale-val">25</output>% chiều rộng ảnh</span>
-              <input type="range" id="c-wm-scale" min="5" max="80" value="25" data-persist>
+            <label class="row"><span>Kích thước <output id="c-wm-scale-val">15</output>% chiều rộng ảnh</span>
+              <input type="range" id="c-wm-scale" min="5" max="80" value="15" data-persist>
             </label>
-            <label class="row"><span>Độ đậm <output id="c-wm-op-val">80</output>%</span>
-              <input type="range" id="c-wm-op" min="10" max="100" value="80" data-persist>
+            <label class="row"><span>Độ đậm <output id="c-wm-op-val">35</output>%</span>
+              <input type="range" id="c-wm-op" min="10" max="100" value="35" data-persist>
             </label>
           </div>
         </fieldset>

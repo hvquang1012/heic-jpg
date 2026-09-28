@@ -590,6 +590,13 @@ function initPreviewDrag() {
 function persist() {
   const load = (k) => { try { return localStorage.getItem('heictool:' + k); } catch { return null; } };
   const save = (k, v) => { try { localStorage.setItem('heictool:' + k, v); } catch { /* bỏ qua */ } };
+  // Đổi mặc định (v2: chất lượng 98, logo trắng giữa ảnh 15%, độ đậm 35%) → bỏ giá trị cũ đã lưu 1 lần
+  if (+load('defaults') < 2) {
+    ['c-quality', 'c-wm-kind', 'c-wm-place', 'c-wm-scale', 'c-wm-op', 'c-wm-x', 'c-wm-y'].forEach((k) => {
+      try { localStorage.removeItem('heictool:' + k); } catch { /* bỏ qua */ }
+    });
+    save('defaults', '2');
+  }
   for (const el of $$('[data-persist]')) {
     const v = load(el.id);
     if (v !== null) el.type === 'checkbox' ? (el.checked = v === '1') : (el.value = v);
