@@ -56,6 +56,7 @@ function convertOptions() {
     rename: {
       enabled: $('#c-rn-on').checked,
       pattern: $('#c-rn-pattern').value,
+      project: $('#c-rn-project').value,
       start: +$('#c-rn-start').value || 0,
       pad: Math.min(6, Math.max(1, +$('#c-rn-pad').value || 1)),
       noAccent: $('#c-rn-noaccent').checked,
@@ -671,6 +672,17 @@ function init() {
     inp.value = inp.value.slice(0, pos) + tok + inp.value.slice(inp.selectionEnd ?? pos);
     inp.dispatchEvent(new Event('change', { bubbles: true }));
     inp.focus();
+  });
+
+  // Mẫu có sẵn: đặt mẫu tên + bật tên không dấu, chữ thường, nối bằng "-" (chuẩn SEO)
+  $('#c-rn-presets').addEventListener('click', (e) => {
+    const preset = e.target.closest('[data-preset]')?.dataset.preset;
+    if (!preset) return;
+    $('#c-rn-pattern').value = preset;
+    ['#c-rn-on', '#c-rn-noaccent', '#c-rn-lower', '#c-rn-dash'].forEach((s) => ($(s).checked = true));
+    ['#c-rn-pattern', '#c-rn-on', '#c-rn-noaccent', '#c-rn-lower', '#c-rn-dash']
+      .forEach((s) => $(s).dispatchEvent(new Event('change', { bubbles: true })));
+    $('#c-rn-project').focus();
   });
 
   $('#compare-range').oninput = (e) => setCompare(+e.target.value);
