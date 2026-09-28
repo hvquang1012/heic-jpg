@@ -1,10 +1,10 @@
-import { decode, render, encode, isHeic, drawWatermark } from './pipeline.js';
+import { decode, render, encode, needsDecoder, drawWatermark } from './pipeline.js';
 import { buildName, uniquePath, baseName, fmtDate } from './rename.js';
 
 const $ = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => [...root.querySelectorAll(s)];
 const EXT = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
-const ACCEPT = /\.(heic|heif|jpe?g|png|webp)$/i;
+const ACCEPT = /\.(heic|heif|dng|jpe?g|png|webp)$/i;
 const CONCURRENCY = 3;
 
 const fmtSize = (b) => (b < 1024 * 1024 ? `${Math.max(1, Math.round(b / 1024))} KB` : `${(b / 1048576).toFixed(2)} MB`);
@@ -162,7 +162,7 @@ function compressOptions() {
   };
 }
 
-// Nén ảnh: giữ định dạng gốc (HEIC → JPG)
+// Nén ảnh: giữ định dạng gốc (HEIC, DNG → JPG)
 function compressType(file) {
   if (/\.png$/i.test(file.name) || file.type === 'image/png') return 'image/png';
   if (/\.webp$/i.test(file.name) || file.type === 'image/webp') return 'image/webp';
@@ -181,7 +181,7 @@ class Workspace {
     this.list = $('.file-list', root);
     this.toolbar = $('.toolbar', root);
     $('.dz-accept', root).textContent =
-      mode === 'convert' ? 'Hỗ trợ HEIC, HEIF, JPG, PNG, WEBP' : 'Hỗ trợ JPG, PNG, WEBP (HEIC sẽ nén thành JPG)';
+      mode === 'convert' ? 'Hỗ trợ HEIC, HEIF, DNG, JPG, PNG, WEBP' : 'Hỗ trợ JPG, PNG, WEBP (HEIC, DNG sẽ nén thành JPG)';
     if (mode !== 'convert') $('.pdf', root).classList.add('hidden');
     this.bind();
   }
@@ -224,7 +224,7 @@ class Workspace {
   add(entries) {
     const ok = entries.filter(({ file }) => ACCEPT.test(file.name) && !file.name.startsWith('.'));
     const skipped = entries.length - ok.length;
-    if (!ok.length) return toast('Không có ảnh hợp lệ (HEIC, JPG, PNG, WEBP)');
+    if (!ok.length) return toast('Không có ảnh hợp lệ (HEIC, DNG, JPG, PNG, WEBP)');
     if (skipped) toast(`Bỏ qua ${skipped} file không phải ảnh`);
     for (const { file, dir } of ok) {
       const it = { id: this.nextId++, file, dir, status: 'pending', taken: null };
@@ -265,7 +265,7 @@ class Workspace {
       } else {
         const type = it.outType || compressType(it.file);
         const origExt = it.file.name.match(/\.([^.]+)$/)?.[1] || '';
-        ext = compressType(it.file) === type && !isHeic(it.file) ? origExt : EXT[type];
+        ext = compressType(it.file) === type && !needsDecoder(it.file) ? origExt : EXT[type];
         name = baseName(it.file.name);
       }
       it.outPath = uniquePath(`${it.dir ? it.dir + '/' : ''}${name}.${ext}`, used);
@@ -339,16 +339,16 @@ class Workspace {
     try {
       const bmp = await decode(it.file);
       const canvas = render(bmp, o);
+      const notes = bmp.note ? [bmp.note] : [];
       bmp.close?.();
       const type = this.mode === 'convert' ? o.type : compressType(it.file);
       const res = await encode(canvas, type, { level: o.level, quality: o.quality });
       let blob = res.blob;
-      const notes = [];
       if (res.quality && o.level !== 'none' && o.level !== 'custom') notes.push(`chất lượng ${res.quality}`);
       if (res.colors) notes.push(`${res.colors} màu`);
       if (res.note === 'lossless') notes.push('nén không mất dữ liệu');
       // Nén không có lợi → giữ file gốc (chỉ khi không đổi kích thước/định dạng)
-      if (this.mode === 'compress' && !o.resize && !isHeic(it.file) && blob.size >= it.file.size) {
+      if (this.mode === 'compress' && !o.resize && !needsDecoder(it.file) && blob.size >= it.file.size) {
         blob = it.file;
         notes.splice(0, notes.length, 'đã tối ưu sẵn – giữ nguyên');
       }
@@ -467,8 +467,8 @@ async function openCompare(it, o) {
   const dlg = $('#compare');
   $('#compare-title').textContent = it.file.name;
   let beforeUrl;
-  if (isHeic(it.file)) {
-    // Trình duyệt không hiển thị HEIC trực tiếp → giải mã lại ra PNG
+  if (needsDecoder(it.file)) {
+    // Trình duyệt không hiển thị HEIC/DNG trực tiếp → giải mã lại ra PNG
     const bmp = await decode(it.file);
     const c = render(bmp, { resize: o.resize });
     bmp.close?.();
@@ -514,7 +514,7 @@ async function previewBase() {
   let base = null;
   if (it) {
     try {
-      const bmp = await decode(it.file);
+      const bmp = await decode(it.file, { thumb: true });
       base = render(bmp, { rotate, resize: { mode: 'long', value: 900 } });
       bmp.close?.();
     } catch { /* ảnh lỗi → dùng nền mẫu */ }

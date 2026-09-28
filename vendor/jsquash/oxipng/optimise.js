@@ -33,7 +33,8 @@ export async function init(moduleOrPath) {
             self instanceof WorkerGlobalScope;
         // We only use multi-threading if the browser has threads and we're in a Worker context
         // This is a caveat of threading library we use (wasm-bindgen-rayon)
-        if (isWorker && hasHardwareConcurrency && (await threads())) {
+        // MD Studio: luôn dùng bản đơn luồng – bản đa luồng bị treo khi trang cross-origin isolated
+        if (false && isWorker && hasHardwareConcurrency && (await threads())) {
             wasmReady = initMT(moduleOrPath);
         }
         else {

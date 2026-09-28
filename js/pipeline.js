@@ -1,10 +1,18 @@
 // Pipeline xử lý 1 ảnh: giải mã → xoay → resize → watermark → mã hoá.
 // Vẽ qua canvas nên metadata EXIF/GPS luôn bị loại bỏ.
 
-export const isHeic = (f) => /\.(heic|heif)$/i.test(f.name) || /image\/hei[cf]/.test(f.type);
+import { decodeDng } from './dng.js';
 
-// Giải mã: Safari (macOS 14+) đọc HEIC trực tiếp; trình duyệt khác dùng libheif (WASM) trong Worker
-export async function decode(file) {
+export const isHeic = (f) => /\.(heic|heif)$/i.test(f.name) || /image\/hei[cf]/.test(f.type);
+export const isDng = (f) => /\.dng$/i.test(f.name) || f.type === 'image/x-adobe-dng';
+// Định dạng trình duyệt không hiển thị được trực tiếp → luôn phải giải mã lại
+export const needsDecoder = (f) => isHeic(f) || isDng(f);
+
+// Giải mã: Safari (macOS 14+) đọc HEIC trực tiếp; trình duyệt khác dùng libheif (WASM) trong Worker.
+// DNG luôn tự giải mã (Safari đọc DNG như TIFF nhưng chỉ ra ảnh thumbnail nhỏ).
+// thumb: chỉ cần ảnh nhỏ (xem trước watermark) → DNG dùng luôn ảnh nhúng, khỏi giải mã RAW.
+export async function decode(file, { thumb = false } = {}) {
+  if (isDng(file)) return decodeDng(file, thumb);
   try {
     return await createImageBitmap(file);
   } catch (err) {
