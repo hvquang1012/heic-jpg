@@ -147,9 +147,17 @@
 
         <fieldset>
           <legend><label><input type="checkbox" id="c-rn-on" data-persist> Đổi tên hàng loạt</label></legend>
+          <span class="row">Mẫu có sẵn (SEO)</span>
+          <div class="chips presets" id="c-rn-presets">
+            <button type="button" data-preset="Khảo sát thi công nội thất {duan} Minh Đức {stt}">Khảo sát thi công nội thất</button>
+            <button type="button" data-preset="Thi công nội thất {duan} Minh Đức {stt}">Thi công nội thất</button>
+            <button type="button" data-preset="Thiết kế nội thất {duan} Minh Đức {stt}">Thiết kế nội thất</button>
+          </div>
           <div id="c-rn" class="sub disabled">
+            <label class="row">Tên dự án / địa điểm <input type="text" id="c-rn-project" placeholder="VD: căn hộ Vinhomes Ocean Park" data-persist></label>
             <label class="row">Mẫu tên <input type="text" id="c-rn-pattern" value="{ngaychup}_{stt}" data-persist></label>
             <div class="chips" id="c-rn-chips">
+              <button type="button" data-token="{duan}">{duan}</button>
               <button type="button" data-token="{ten}">{ten}</button>
               <button type="button" data-token="{stt}">{stt}</button>
               <button type="button" data-token="{ngay}">{ngay}</button>

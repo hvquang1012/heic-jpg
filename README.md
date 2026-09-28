@@ -51,7 +51,7 @@ Lần đầu mở trang sẽ **tự tải lại 1 lần**: `coi-serviceworker.js
 | Xoay | 90° phải, 180°, 90° trái |
 | Giao diện | Nút ☾/☀ ở góc trên chuyển sáng/tối (mặc định theo macOS), được ghi nhớ |
 | Watermark | Logo Minh Đức (xanh / trắng / tự động theo nền), **logo riêng tải lên** (PNG/SVG/JPG/WEBP, được lưu trên máy cho lần sau) hoặc chữ; 5 vị trí có sẵn hoặc **kéo thả trên ảnh xem trước**, kích thước theo % chiều rộng ảnh, độ đậm |
-| Đổi tên hàng loạt | Mẫu `{ten}` `{stt}` `{ngay}` `{ngaychup}` `{rong}x{cao}`, số bắt đầu, số chữ số (001), bỏ dấu tiếng Việt, chữ thường, khoảng trắng → `-`; **xem trước tên mới**; tự thêm `-1`, `-2` nếu trùng |
+| Đổi tên hàng loạt | **Mẫu có sẵn chuẩn SEO**: Khảo sát thi công nội thất / Thi công nội thất / Thiết kế nội thất + ô *Tên dự án / địa điểm* → vd. `thi-cong-noi-that-can-ho-vinhomes-minh-duc-001.jpg`. Mẫu `{duan}` `{ten}` `{stt}` `{ngay}` `{ngaychup}` `{rong}x{cao}`, số bắt đầu, số chữ số (001), bỏ dấu tiếng Việt, chữ thường, khoảng trắng → `-`; **xem trước tên mới**; tự thêm `-1`, `-2` nếu trùng |
 | Bảo mật | EXIF & vị trí GPS luôn được xoá |
 | Tốc độ | Xử lý 3 ảnh song song, nén chạy trong Web Worker (giao diện không bị đơ) |
 

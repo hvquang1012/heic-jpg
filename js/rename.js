@@ -1,4 +1,4 @@
-// Đổi tên hàng loạt theo mẫu: {ten} {stt} {ngay} {ngaychup} {rong} {cao}
+// Đổi tên hàng loạt theo mẫu: {duan} {ten} {stt} {ngay} {ngaychup} {rong} {cao}
 
 export function removeAccents(s) {
   return s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
@@ -13,6 +13,7 @@ export const baseName = (name) => name.replace(/\.[^.]+$/, '');
 export function buildName(opts, ctx) {
   if (!opts.enabled || !opts.pattern.trim()) return baseName(ctx.name);
   const vars = {
+    duan: (opts.project || '').trim(),
     ten: baseName(ctx.name),
     stt: String(opts.start + ctx.index).padStart(opts.pad, '0'),
     ngay: fmtDate(new Date()),
@@ -23,7 +24,8 @@ export function buildName(opts, ctx) {
   let s = opts.pattern.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
   if (opts.noAccent) s = removeAccents(s);
   if (opts.lower) s = s.toLowerCase();
-  if (opts.dash) s = s.trim().replace(/\s+/g, '-');
+  // Kiểu URL/SEO: ký tự đặc biệt → "-", gộp "--", bỏ "-" thừa ở đầu/cuối (vd. {duan} để trống)
+  if (opts.dash) s = s.trim().replace(/[^\p{L}\p{N}_.]+/gu, '-').replace(/^-+|-+$/g, '');
   s = s.replace(/[\\/:*?"<>|]/g, '_');
   return s || baseName(ctx.name);
 }
