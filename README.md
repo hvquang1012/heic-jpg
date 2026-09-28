@@ -1,4 +1,4 @@
-# MD Studio – chuyển HEIC & nén ảnh
+# MD Studio – chuyển HEIC, DNG & nén ảnh
 
 Web tool chạy **100% trên máy bạn**: ảnh không bị tải lên đâu cả, dùng được **không cần Internet**.
 
@@ -36,15 +36,18 @@ Sau đó vào **Settings → Pages**: đợi *DNS check successful* rồi tick *
 
 Dùng tốt nhất trên **Safari** (đọc HEIC trực tiếp, rất nhanh); Chrome/Firefox dùng libheif (WASM) với màu chính xác.
 
+Lần đầu mở trang sẽ **tự tải lại 1 lần**: `coi-serviceworker.js` bật *cross-origin isolation* (GitHub Pages không tự đặt được header COOP/COEP) – cần cho giải mã RAW của DNG.
+
 ## Tính năng
 
 ### Tab “Chuyển đổi”
 | Tính năng | Chi tiết |
 |---|---|
-| Đầu vào | HEIC, HEIF, JPG, PNG, WEBP – chọn file, chọn **cả thư mục**, hoặc kéo thả |
+| Đầu vào | HEIC, HEIF, **DNG** (RAW), JPG, PNG, WEBP – chọn file, chọn **cả thư mục**, hoặc kéo thả |
 | Đầu ra | **JPG / PNG / WEBP**, tải từng ảnh, **ZIP** (giữ nguyên cấu trúc thư mục), **PDF gộp** (vừa khít ảnh hoặc A4) |
 | Chất lượng | 40–100, hoặc **nén thêm** Thông minh / Nhẹ / Mạnh |
 | Kích thước | Giữ nguyên, cạnh dài 2048/1600/1080 px, tuỳ chỉnh px hoặc % (thu nhỏ nhiều bước để giữ nét) |
+| DNG | Dùng ảnh JPEG nhúng trong file nếu đủ độ phân giải (nhanh, màu giống máy chụp/iPhone); nếu không thì giải mã RAW bằng **LibRaw** (WASM). Nếu không giải mã được (vd. DNG nén JPEG-XL) thì dùng ảnh xem trước lớn nhất và ghi chú kích thước |
 | Xoay | 90° phải, 180°, 90° trái |
 | Giao diện | Nút ☾/☀ ở góc trên chuyển sáng/tối (mặc định theo macOS), được ghi nhớ |
 | Watermark | Logo Minh Đức (xanh / trắng / tự động theo nền), **logo riêng tải lên** (PNG/SVG/JPG/WEBP, được lưu trên máy cho lần sau) hoặc chữ; 5 vị trí có sẵn hoặc **kéo thả trên ảnh xem trước**, kích thước theo % chiều rộng ảnh, độ đậm |
@@ -58,7 +61,7 @@ Dùng tốt nhất trên **Safari** (đọc HEIC trực tiếp, rất nhanh); Ch
 | JPG | **MozJPEG** – nhỏ hơn encoder thường ~20–30% ở cùng chất lượng |
 | PNG | **Lượng tử hoá màu** (256/128 màu + dithering, như TinyPNG) + **OxiPNG** |
 | WEBP | **libwebp** |
-| HEIC | Nén thành JPG |
+| HEIC, DNG | Nén thành JPG |
 
 **Chế độ Thông minh**: thử nhiều mức chất lượng trên vùng giữa ảnh (độ phân giải gốc) và chọn mức thấp nhất vẫn đạt **SSIM ≥ 0.985** so với ảnh gốc → dung lượng nhỏ mà mắt thường không thấy khác. Mức **Nhẹ** (SSIM ≥ 0.993), **Mạnh** (≥ 0.97), **Tuỳ chỉnh** (tự chọn chất lượng).
 
@@ -74,17 +77,19 @@ Tuỳ chọn được ghi nhớ cho lần mở sau.
 index.html          giao diện (2 tab)
 styles.css          giao diện sáng/tối theo macOS
 js/main.js          danh sách ảnh, hàng đợi song song, ZIP, PDF, so sánh
-js/pipeline.js      giải mã HEIC → xoay → resize → watermark → mã hoá; pool Web Worker
+js/pipeline.js      giải mã HEIC/DNG → xoay → resize → watermark → mã hoá; pool Web Worker
 js/heic.worker.js   giải mã HEIC bằng libheif (WASM)
+js/dng.js           đọc DNG: ảnh JPEG nhúng hoặc giải mã RAW bằng LibRaw (WASM)
 js/codec.worker.js  MozJPEG / OxiPNG / libwebp / lượng tử hoá, tìm chất lượng theo SSIM
 js/ssim.js          tính SSIM
 js/rename.js        đổi tên hàng loạt
 vendor/             thư viện đóng gói sẵn (chạy offline)
+coi-serviceworker.js bật cross-origin isolation (cần cho LibRaw)
 start.command       mở tool trên macOS
 ```
 
-Thư viện (trong `vendor/`): font Plus Jakarta Sans (OFL-1.1), libheif-js 1.23.2 (LGPL-3.0, giải mã HEIC – bản gốc, không sửa), JSZip 3.10.1 (MIT), jsPDF 2.5.2 (MIT), exifr 7.1.3 (MIT), image-q 4.0.0 (MIT), @jsquash/jpeg 1.6.0, @jsquash/webp 1.5.0, @jsquash/oxipng 2.3.0, wasm-feature-detect 1.9.0 (Apache-2.0).
-`vendor/jsquash/*/encode.js|optimise.js` được sửa 1 dòng import `wasm-feature-detect` sang đường dẫn tương đối để chạy trong Worker không cần bundler.
+Thư viện (trong `vendor/`): font Plus Jakarta Sans (OFL-1.1), libheif-js 1.23.2 (LGPL-3.0, giải mã HEIC – bản gốc, không sửa), JSZip 3.10.1 (MIT), jsPDF 2.5.2 (MIT), exifr 7.1.3 (MIT), image-q 4.0.0 (MIT), @jsquash/jpeg 1.6.0, @jsquash/webp 1.5.0, @jsquash/oxipng 2.3.0, wasm-feature-detect 1.9.0 (Apache-2.0), libraw-wasm 1.6.0 (ISC; chứa LibRaw – LGPL-2.1/CDDL-1.0), coi-serviceworker 0.1.7 (MIT, ở gốc repo).
+`vendor/jsquash/*/encode.js|optimise.js` được sửa 1 dòng import `wasm-feature-detect` sang đường dẫn tương đối để chạy trong Worker không cần bundler; `oxipng/optimise.js` còn tắt bản đa luồng (bị treo khi trang cross-origin isolated).
 
 ## Hướng phát triển bản Premium (bán)
 
